@@ -1,31 +1,46 @@
+# Sets slope of linear relationship between x and y (y = Ax+B)
 trueA <- 5
+# Sets y-intercept of linear relationship between x and y
 trueB <- 0
+# Sets standard deviation of normal distribution used to generate random noise in y values
 trueSd <- 10
+# Sets number of data points
 sampleSize <- 31
 
-# create independent x-values 
+# Generates a vector of x values from [-N/2, N/2] where N is the sample size.
 x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
-# create dependent values according to ax + b + N(0,sd)
+# Generates a vector of y values that deviate randomly from the above linear relationship between x and y by adding a random number from a normal distribution with std dev = trueSd
 y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
 
+# Plots the generated x and y vectors against each other in a plot where the title is "Test Data"
 plot(x,y, main="Test Data")
 
-###################
-
+# Defines a function likelihood(param) which outputs the probability the given parameter configuration would result in the random y vector above
 likelihood <- function(param){
+  # Defines the first element of the param vector as "a" (i.e. slope)
   a = param[1]
+  # Defines the second element of the param vector as "b" (i.e. intercept)
   b = param[2]
+  # Defines the third element of the param vector as "sd" (i.e. standard deviation)
   sd = param[3]
   
+  # Define a vector "pred" as the exact y values for each x in the sample given the inital conditions in param
   pred = a*x + b
+  # Generates a vector in which each element is the log(probability) that the deviation from "pred" in the corresponding element of the randomly varied y vector would occur
   singlelikelihoods = dnorm(y, mean = pred, sd = sd, log = T)
+  # Sums the values of all the elements in the likelihoods vector to determine the probability of generating this permutation of the y vector
+  # Note that summing makes sense because the values in singlelikelihoods are logarithms, so summing these values is analagous to multiplying the probabilities
   sumll = sum(singlelikelihoods)
-  return(sumll)   
+  # Returns sumll as the output of the likelihood function
+  return(sumll)
 }
 
-# Example: plot the likelihood profile of the slope a
+# Leverages the above likelihood function to find the most likely value of slope for the data vectors
+# Defines a slopevalues() function which returns the result of a likelihood function with the argument as the slope "a" and trueB/trueSd being constant
 slopevalues <- function(x){return(likelihood(c(x, trueB, trueSd)))}
+# Applies the slopevalues function for each "a" from 3 to 7 in intervals of 0.5 and stores each result as an element in the vector "slopelikelihoods"
 slopelikelihoods <- lapply(seq(3, 7, by=.05), slopevalues )
+# Plots slopelikelihoods vs. argument "a" as a smooth line connecting the values.  The x-axis label is "values of slope parameter a" and the y-axis label is "Log likelihood"
 plot (seq(3, 7, by=.05), slopelikelihoods , type="l", xlab = "values of slope parameter a", ylab = "Log likelihood")
 
 #####################
