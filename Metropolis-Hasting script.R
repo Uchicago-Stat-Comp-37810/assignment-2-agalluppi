@@ -43,26 +43,29 @@ slopelikelihoods <- lapply(seq(3, 7, by=.05), slopevalues )
 # Plots slopelikelihoods vs. argument "a" as a smooth line connecting the values.  The x-axis label is "values of slope parameter a" and the y-axis label is "Log likelihood"
 plot (seq(3, 7, by=.05), slopelikelihoods , type="l", xlab = "values of slope parameter a", ylab = "Log likelihood")
 
-#####################
-
-# Prior distribution
+# A function that defines a prior distribution for each parameter in the likelihood vector.  The information from these distributions will be added to the likelihood data to generate a posterior distribution for analysis with the M-H function.
 prior <- function(param){
+  # Defines the first element of the param vector as "a" (i.e. slope)
   a = param[1]
+  # Defines the second element of the param vector as "b" (i.e. intercept)
   b = param[2]
+  # Defines the third element of the param vector as "sd" (i.e. standard deviation)
   sd = param[3]
+  # Defines a distribution "aprior" as a uniform distribution of "a" bounded from 0 to 10 on a log scale
   aprior = dunif(a, min=0, max=10, log = T)
+  # Defines a distribution "bprior" as a uniform distribution of "b" with a standard deviation of 5 on a log scale
   bprior = dnorm(b, sd = 5, log = T)
+  # Defines a distribution "sdprior" as a uniform distribution of "sd" bounded from 0 to 30 on a log scale
   sdprior = dunif(sd, min=0, max=30, log = T)
+  # Returns the sum of the three distributions (the distributions are summed because they are on a log scale.)
   return(aprior+bprior+sdprior)
 }
 
-##########################
-
+# A function for adding the prior and likelihood distributions together to make the posterior distribution.
 posterior <- function(param){
+  # Returns the sum of the two distributions to form the posterior distribution (again, adding because of the log scale)
   return (likelihood(param) + prior(param))
 }
-
-######## Metropolis algorithm ################
 
 proposalfunction <- function(param){
   return(rnorm(3,mean = param, sd= c(0.1,0.5,0.3)))
