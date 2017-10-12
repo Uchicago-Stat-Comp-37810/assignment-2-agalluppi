@@ -16,7 +16,7 @@ plot(x,y, main="Test Data")
 slopelikelihoods <- lapply(seq(3, 7, by=.05), slopevalues)
 plot (seq(3, 7, by=.05), slopelikelihoods , type="l", xlab = "values of slope parameter a", ylab = "Log likelihood")
 
-startvalue = c(4,0,10)
+startvalue = c(4,0,10)s
 chain = run_metropolis_MCMC(startvalue, 10000)
 
 burnIn = 5000
@@ -27,3 +27,16 @@ par(mfrow = c(2,3))
 summary(chain, burnIn, 30, "a")
 summary(chain, burnIn, 30, "b")
 summary(chain, burnIn, 30, "sd")
+
+compare_outcomes <- function(iterations) {
+  a_data = array(dim = c(2,10))
+  rownames(a_data) <- paste(c('mean', "stdev"))
+  for (i in 1:10) {
+    startvalue = c(runif(1, 0, 10), runif(1, -1,1),runif(1,0,20))
+    chain = run_metropolis_MCMC(startvalue, iterations)
+    a_data[1,i] <- mean(chain[1,])
+    a_data[2,i] <- sd(chain[1,])
+  }
+  return(print(a_data))
+}
+ 
