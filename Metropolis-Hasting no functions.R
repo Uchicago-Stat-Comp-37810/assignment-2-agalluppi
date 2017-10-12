@@ -16,10 +16,10 @@ plot(x,y, main="Test Data")
 slopelikelihoods <- lapply(seq(3, 7, by=.05), slopevalues)
 plot (seq(3, 7, by=.05), slopelikelihoods , type="l", xlab = "values of slope parameter a", ylab = "Log likelihood")
 
-startvalue = c(4,0,10)s
-chain = run_metropolis_MCMC(startvalue, 10000)
+startvalue = c(4,0,10)
+chain = run_metropolis_MCMC(startvalue, 20000)
 
-burnIn = 5000
+burnIn = 10000
 acceptance = 1-mean(duplicated(chain[-(1:burnIn),]))
 
 

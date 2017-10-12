@@ -74,3 +74,20 @@ summary <- function(chain, burnIn, nclass, parameter) {
     abline(h = trueSd, col="red" )
   }
 }
+
+# Function for comparing ten loops of the run_metropolis_MCMC function (this code compares the values output for "a" in each run)
+compare_outcomes <- function(iterations) {
+  # Create an empty array for the mean and stdev of the Markov chain values for a for each run of the algorithm
+  a_data = array(dim = c(2,10))
+  rownames(a_data) <- paste(c('mean a', "stdev a"))
+  for (i in 1:10) {
+    # Select a random start value for each parameter
+    startvalue = c(runif(1, 0, 10), runif(1, -1,1),runif(1,0,20))
+    chain = run_metropolis_MCMC(startvalue, iterations)
+    # Store the mean of the values in the chain in the ith element of the mean row of the a_data array
+    a_data[1,i] <- mean(chain[1,])
+    # Store the stdev of the values in the chain in the ith element of the stdev row of the a_data array
+    a_data[2,i] <- sd(chain[1,])
+  }
+  return(print(a_data))
+}

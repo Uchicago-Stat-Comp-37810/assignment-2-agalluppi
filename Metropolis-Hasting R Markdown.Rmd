@@ -1,0 +1,73 @@
+---
+title: "STAT 37810 Assignment 2"
+output: html_document
+---
+
+```{r setup}
+# Set up working directory and call the function scripts
+setwd("~/GitHub/assignment-2-agalluppi")
+source("Metropolis-Hasting functions.R")
+```
+
+```{r}
+# Define the true values of the parameters for analysis and the number of points to be analyzed
+trueA <- 5
+trueB <- 0
+trueSd <- 10
+sampleSize <- 31
+
+# create independent x-values 
+x <- (-(sampleSize-1)/2):((sampleSize-1)/2)
+# create dependent values according to ax + b + N(0,sd)
+y <-  trueA * x + trueB + rnorm(n=sampleSize,mean=0,sd=trueSd)
+
+# plot the test data
+plot(x,y, main="Test Data")
+```
+
+```{r}
+# Example: plot the likelihood profile of the slope a
+slopelikelihoods <- lapply(seq(3, 7, by=.05), slopevalues)
+plot (seq(3, 7, by=.05), slopelikelihoods , type="l", xlab = "values of slope parameter a", ylab = "Log likelihood")
+```
+
+```{r}
+startvalue = c(4,0,10)
+# Run a Metropolis-Hastings MCMC algorithm to estimate the parameters
+chain = run_metropolis_MCMC(startvalue, 10000)
+
+burnIn = 5000
+acceptance = 1-mean(duplicated(chain[-(1:burnIn),]))
+# Print the percentage of the time a potential value of a parameter was accepted as a new value in the Markov chain
+print(acceptance)
+```
+
+```{r}
+# Print a summary of the data from the algorithm's run
+# Each parameter has a histogram showing the mean frequency distribution of the chain values and the raw chain values
+# The red line on each plot indicates the true value of the parameter
+par(mfrow = c(2,3))
+summary(chain, burnIn, 30, "a")
+summary(chain, burnIn, 30, "b")
+summary(chain, burnIn, 30, "sd")
+```
+
+```{r}
+# Comparing the outcomes of ten runs of the M-H MCMC algorithm with 1000 iterations
+# Uses a random starting value of the parameters for each run
+compare_outcomes(1000)
+```
+
+```{r}
+# Comparing the outcomes of ten runs of the M-H MCMC algorithm with 10000 iterations
+# Uses a random starting value of the parameters for each run
+compare_outcomes(10000)
+```
+
+```{r}
+# Comparing the outcomes of ten runs of the M-H MCMC algorithm with 100000 iterations
+# Uses a random starting value of the parameters for each run
+compare_outcomes(100000)
+```
+
+These examples show that the algorithm is somewhat efficient at estimating the true value of a within about one standard deviation, but the outcomes per run are quite varied, so it's not perfect.  Notably, it seems increasing the number of iterations doesn't improve the results too much.
